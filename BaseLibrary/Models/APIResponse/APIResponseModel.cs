@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Net;
 
-namespace ShortVideo.API.Models
+namespace BaseLibrary.Models.APIResponse
 {
-    public class ResponseModel
+    public class APIResponseModel
     {
-        //public ResponseModel([ActionResultStatusCode] int statusCode)
-        public ResponseModel(HttpStatusCode httpStatusCode)
+        public APIResponseModel(HttpStatusCode httpStatusCode)
         {
             StatusCode = httpStatusCode;
         }
