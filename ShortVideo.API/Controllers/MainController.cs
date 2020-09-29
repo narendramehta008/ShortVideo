@@ -1,11 +1,10 @@
-﻿using System;
-using System.Net.Http;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ShortVideo.API.Models;
 using ShortVideo.API.Services;
-using System.IO;
+using System;
 using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace ShortVideo.API.Controllers
 {
@@ -22,7 +21,6 @@ namespace ShortVideo.API.Controllers
             _joService = new JoService(_httpClient);
         }
 
-
         [HttpGet("[action]")]
         public async Task<IActionResult> HashTagUrls()
         {
@@ -32,9 +30,9 @@ namespace ShortVideo.API.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> UploadFiles()
         {
-            var localPath = @"E:\Files\Sample Videos";
+            //var localPath = @"E:\Files\Sample Videos";
+            //var files = Directory.GetFiles(localPath).ToList();
             var videoUrls = await _joService.DownloadUrls();
-            var files = Directory.GetFiles(localPath).ToList();
             var serverFiles = _driveService.GetFiles();
             //var serverFiles = _driveService.GetFiles(1000, folderName: "ShortVideo");
 
@@ -59,7 +57,5 @@ namespace ShortVideo.API.Controllers
             }
             return Ok(videoUrls);
         }
-
-
     }
 }

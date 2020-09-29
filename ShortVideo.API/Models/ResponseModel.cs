@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Net;
 
@@ -12,6 +11,7 @@ namespace ShortVideo.API.Models
         {
             StatusCode = httpStatusCode;
         }
+
         public HttpStatusCode StatusCode { get; } = HttpStatusCode.OK;
         public IEnumerable<string> Errors { get; set; }
         public object Data { get; set; }
@@ -25,5 +25,4 @@ namespace ShortVideo.API.Models
                 return new BadRequestObjectResult(Data);
         }
     }
-
 }

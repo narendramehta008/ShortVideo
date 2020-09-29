@@ -1,5 +1,5 @@
-﻿using System.Net.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace ShortVideo.API.Controllers
 {
@@ -8,10 +8,10 @@ namespace ShortVideo.API.Controllers
     public class BaseController : ControllerBase
     {
         protected readonly HttpClient _httpClient;
+
         public BaseController(IHttpClientFactory clientFactory)
         {
             _httpClient = clientFactory.CreateClient();
         }
-
     }
 }
