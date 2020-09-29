@@ -1,0 +1,5 @@
+heroku git:remote {app-name}
+
+heroku builpacks:set jincod/dotnetcore
+
+git push heroku master
