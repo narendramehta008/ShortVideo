@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using System.Net.Http;
 
 namespace ShortVideo.API.Services
 {
@@ -10,9 +6,11 @@ namespace ShortVideo.API.Services
     {
         void SetHeaders();
     }
+
     public class HttpService : IHttpService
     {
         private readonly HttpClient _httpClient;
+
         public HttpService(HttpClient httpClient, bool isSetDefaultHeaders = true)
         {
             _httpClient = httpClient;
@@ -38,9 +36,9 @@ namespace ShortVideo.API.Services
             _httpClient.DefaultRequestHeaders.Accept.
                 Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
+
         public void SetHeaders()
         {
-
         }
     }
 }

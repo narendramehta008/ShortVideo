@@ -27,35 +27,41 @@ namespace ShortVideo.API.Services
 
         public const string DefaultFileFolder = "1Vn1Qa7L4j3y8SyErG045-ZcugRQWkLKG";
         public const string DefaultFileParentFolder = "16W8ahy1mBUkqhskBQCL6NqwXEBVbYpbJ";
-
     }
+
     public interface IGoogleDriveService
     {
         Task<Dictionary<string, string>> GetFiles(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder);
+
         Task<Dictionary<string, FileResult>> GetFilesStream(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder);
+
         Task<Dictionary<string, List<string>>> GetFilesViewLinks(KeyValuePair<string, string> folderIdName);
+
         Task<Dictionary<string, string>> GetFolders(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder);
+
         Task<Dictionary<string, string>> GetAllFolders(int pageSize = 1000);
+
         Task<Dictionary<string, string>> GetFilesOrFolders(string query, int pageSize = 1000);
+
         /// <summary>
         /// It checks all the folders inside root folder including sub folders
         /// </summary>
         /// <param name="folderName"></param>
         /// <returns></returns>
         Task<KeyValuePair<string, string>> GetFolderIdByName(string folderName);
-        Task<CreateMediaUpload> UploadFiles(UploadModel uploadModel);
-        Task<KeyValuePair<string, string>> CreateFolder(FolderModel uploadModel);
 
+        Task<CreateMediaUpload> UploadFiles(UploadModel uploadModel);
+
+        Task<KeyValuePair<string, string>> CreateFolder(FolderModel uploadModel);
     }
 
     public class GoogleDriveService : IGoogleDriveService
     {
         //NOTE : only those folders and files accessible to api which are created by them
         private UserCredential _credential;
+
         private DriveService _driveService;
         private readonly string[] _scopes = { DriveService.Scope.DriveFile };
-
-
 
         public GoogleDriveService()
         {
@@ -87,6 +93,7 @@ namespace ShortVideo.API.Services
         {
             return await GetFilesOrFolders($"'{folderId}' in parents and mimeType != 'application/vnd.google-apps.folder'", pageSize);
         }
+
         public async Task<Dictionary<string, FileResult>> GetFilesStream(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder)
         {
             var filesStreams = new Dictionary<string, FileResult>();
@@ -101,6 +108,7 @@ namespace ShortVideo.API.Services
             }
             return filesStreams;
         }
+
         public async Task<Dictionary<string, List<string>>> GetFilesViewLinks(KeyValuePair<string, string> folderIdName)
         {
             var filesStreams = new Dictionary<string, List<string>>();
@@ -122,17 +130,18 @@ namespace ShortVideo.API.Services
                     currentList.Add(currentFile.Id);
             }
             filesStreams.Add(currentDirectory, currentList);
-
         }
 
         public async Task<Dictionary<string, string>> GetFolders(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder)
         {
             return await GetFilesOrFolders($"'{folderId}' in parents and mimeType = 'application/vnd.google-apps.folder'", pageSize);
-        } 
+        }
+
         public async Task<Dictionary<string, string>> GetAllFolders(int pageSize = 1000)
         {
             return await GetFilesOrFolders($"mimeType = 'application/vnd.google-apps.folder'", pageSize);
         }
+
         public async Task<Dictionary<string, string>> GetFilesOrFolders(string query, int pageSize = 1000)
         {
             // List files.
@@ -143,7 +152,6 @@ namespace ShortVideo.API.Services
                 list = files.ToDictionary(a => a.Id, b => b.Name);
             return list;
         }
-      
 
         private async Task<IList<Google.Apis.Drive.v3.Data.File>> FilesList(string query, int pageSize = 1000)
         {

@@ -1,4 +1,4 @@
-﻿using  BaseLibrary.Constants;
+﻿using BaseLibrary.Constants;
 
 namespace ShortVideo.API.Models.QueryModels
 {

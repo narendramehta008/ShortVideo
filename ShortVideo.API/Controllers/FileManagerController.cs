@@ -43,7 +43,6 @@ namespace ShortVideo.API.Controllers
         [HttpGet("[action]")]
         public async Task<Dictionary<string, List<string>>> GetFilesViewLink([FromQuery] FileQueryModel queryModel)
         {
-           
             bool isExist = _memoryCache.TryGetValue(queryModel.FolderName, out Dictionary<string, List<string>> viewsByFolderName);
             if (!isExist)
             {
