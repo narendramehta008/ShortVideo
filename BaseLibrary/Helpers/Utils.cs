@@ -15,7 +15,12 @@ namespace BaseLibrary.Helpers
             if (!dateTime.HasValue) dateTime = DateTime.UtcNow;
             return dateTime.Value.Subtract(new DateTime(1970, 1, 1)).Ticks;
         }
-
+        public static string GetFileExtension(string fileName)
+        {
+            if (fileName.Contains("."))
+                return fileName.Substring(fileName.LastIndexOf('.'));
+            return "";
+        }
         //public static Guid TimeStampGuid(DateTime? dateTime = null)
         //{
         //    if (!dateTime.HasValue) dateTime = DateTime.UtcNow;

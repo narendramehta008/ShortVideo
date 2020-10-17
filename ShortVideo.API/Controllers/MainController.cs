@@ -33,7 +33,7 @@ namespace ShortVideo.API.Controllers
             //var localPath = @"E:\Files\Sample Videos";
             //var files = Directory.GetFiles(localPath).ToList();
             var videoUrls = await _joService.DownloadUrls();
-            var serverFiles = _driveService.GetFiles();
+            var serverFiles = await _driveService.GetFiles(folderId: "1GPU8UQNP7usViTXQInKOAGkXjrcHnw85");
             //var serverFiles = _driveService.GetFiles(1000, folderName: "ShortVideo");
 
             foreach (var item in videoUrls)

@@ -21,11 +21,12 @@ namespace ShortVideo.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpClient()
-                .AddControllers()
+                .AddControllersWithViews()
                 .AddNewtonsoftJson();
             services.AddSwaggerGen();
 
             services.AddScoped<IGoogleDriveService, GoogleDriveService>();
+            services.AddScoped<IFileUploadService, FileUploadService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
