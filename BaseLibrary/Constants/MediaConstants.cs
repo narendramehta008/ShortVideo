@@ -1,17 +1,22 @@
-﻿using System.Collections.Generic;
+﻿using BaseLibrary.Helpers;
+using System.Collections.Generic;
 
 namespace BaseLibrary.Constants
 {
     public class MediaConstants
     {
-        public const string ImageFormats = "ImageFormats";
-        public const string VideoFormats = "VideoFormats";
-
-        public static Dictionary<string, List<string>> SupportedFormats = new Dictionary<string, List<string>>()
+        public static Dictionary<FileType, IEnumerable<string>> SupportedFormats = new Dictionary<FileType, IEnumerable<string>>()
         {
-            {"ImageFormats", new List<string> { ".jpg", ".jpeg", ".png" } },
-            {"VideoFormats", new List<string> { ".mp4", ".mpeg"} },
+            {FileType.Image, new List<string> { ".jpg", ".jpeg", ".png" } },
+            {FileType.Video, new List<string> { ".mp4", ".mpeg"} },
+            {FileType.File, MimeTypeMap.GetAllExtension() },
         };
+    }
 
+    public enum FileType
+    {
+        Image,
+        Video,
+        File
     }
 }

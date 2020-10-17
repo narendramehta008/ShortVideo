@@ -27,6 +27,7 @@ namespace ShortVideo.API
 
             services.AddScoped<IGoogleDriveService, GoogleDriveService>();
             services.AddScoped<IFileUploadService, FileUploadService>();
+            services.AddMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

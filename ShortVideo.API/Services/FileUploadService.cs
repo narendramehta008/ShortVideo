@@ -4,34 +4,36 @@ using BaseLibrary.Models.APIResponse;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ShortVideo.API.Models;
+using ShortVideo.API.Models.QueryModels;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace ShortVideo.API.Services
 {
     public interface IFileUploadService
     {
-        Task<IActionResult> UploadFiles(IEnumerable<IFormFile> files, IEnumerable<string> validFormats, [CallerMemberName] string caller = null);
+        Task<IActionResult> UploadFiles(FileQueryModel queryModel, IEnumerable<IFormFile> files);
 
         Task<IActionResult> UploadFilesByFolderId(IEnumerable<IFormFile> files, IEnumerable<string> validFormats, string folderId);
 
-        Task<IActionResult> UploadFilesByFolderName(IEnumerable<IFormFile> files, IEnumerable<string> validFormats, string folderName, [CallerMemberName] string caller = null);
+        Task<IActionResult> UploadFilesByFolderName(FileQueryModel queryModel, IEnumerable<IFormFile> files);
+
+        //Task<Dictionary<string, FileResult>> GetFilesByFolderName(string folderName, [CallerMemberName] string caller = null);
+        Task<Dictionary<string, List<string>>> GetViewLinkByFolderName(FileQueryModel queryModel);
     }
 
     public class FileUploadService : IFileUploadService
     {
-        private readonly HttpClient _httpClient;
         private readonly IGoogleDriveService _driveService;
 
-        public FileUploadService(IHttpClientFactory clientFactory, IGoogleDriveService driveService)
+        public FileUploadService(IGoogleDriveService driveService)
         {
-            _httpClient = clientFactory.CreateClient();
             _driveService = driveService;
         }
+
         /// <summary>
         /// upload files to default folder according to file types
         /// </summary>
@@ -39,32 +41,54 @@ namespace ShortVideo.API.Services
         /// <param name="validFormats"></param>
         /// <param name="caller"></param>
         /// <returns></returns>
-        public async Task<IActionResult> UploadFiles(IEnumerable<IFormFile> files, IEnumerable<string> validFormats, [CallerMemberName] string caller = "")
+        public async Task<IActionResult> UploadFiles(FileQueryModel queryModel, IEnumerable<IFormFile> files)
         {
             if (files.Count() == 0)
                 return new BadRequestResult();
             string folderId;
-            if (caller.Contains("image", System.StringComparison.OrdinalIgnoreCase))
-                folderId = GoogleDriveFolderId.DefaultImageFolder;
-            else if (caller.Contains("video", System.StringComparison.OrdinalIgnoreCase))
-                folderId = GoogleDriveFolderId.DefaultVideoFolder;
-            else
-                folderId = GoogleDriveFolderId.DefaultFileFolder;
+            IEnumerable<string> validFormats = MediaConstants.SupportedFormats[queryModel.FileType];
+            switch (queryModel.FileType)
+            {
+                case FileType.Image:
+                    folderId = GoogleDriveFolderId.DefaultImageFolder;
+                    break;
 
+                case FileType.Video:
+                    folderId = GoogleDriveFolderId.DefaultVideoFolder;
+                    break;
+
+                case FileType.File:
+                    folderId = GoogleDriveFolderId.DefaultFileFolder;
+                    break;
+
+                default:
+                    return new BadRequestResult();
+            }
             return await UploadFilesByFolderId(files, validFormats, folderId);
         }
 
-        public async Task<IActionResult> UploadFilesByFolderName(IEnumerable<IFormFile> files, IEnumerable<string> validFormats, string folderName, [CallerMemberName] string caller = null)
+        public async Task<IActionResult> UploadFilesByFolderName(FileQueryModel queryModel, IEnumerable<IFormFile> files)
         {
-            var folder = await _driveService.GetFolderIdByName(folderName);
+            var folders = queryModel.FolderName.Split(',').ToList();
+            var folder = await _driveService.GetFolderIdByName(folders.Last());
+            IEnumerable<string> validFormats = MediaConstants.SupportedFormats[queryModel.FileType];
+
             if (folder.Key == GlobalConstants.ErrorMessage)
             {
-                if (caller.Contains("image", System.StringComparison.OrdinalIgnoreCase))
-                    folder = await _driveService.CreateFolder(new FolderModel { FolderName = folderName, ParentFolderId = GoogleDriveFolderId.DefaultVideoParentFolder });
-                else if (caller.Contains("video", System.StringComparison.OrdinalIgnoreCase))
-                    folder = await _driveService.CreateFolder(new FolderModel { FolderName = folderName, ParentFolderId = GoogleDriveFolderId.DefaultVideoParentFolder });
-                else
-                    folder = await _driveService.CreateFolder(new FolderModel { FolderName = folderName, ParentFolderId = GoogleDriveFolderId.DefaultFileParentFolder });
+                switch (queryModel.FileType)
+                {
+                    case FileType.Image:
+                        folder = await GetFolderId(queryModel, GoogleDriveFolderId.DefaultImageParentFolder);
+                        break;
+
+                    case FileType.Video:
+                        folder = await GetFolderId(queryModel, GoogleDriveFolderId.DefaultVideoParentFolder);
+                        break;
+
+                    case FileType.File:
+                        folder = await GetFolderId(queryModel, GoogleDriveFolderId.DefaultFileParentFolder);
+                        break;
+                }
             }
 
             return await UploadFilesByFolderId(files, validFormats, folder.Key);
@@ -110,5 +134,67 @@ namespace ShortVideo.API.Services
             }
             return new APIResponseModel(System.Net.HttpStatusCode.OK) { Data = response }.ResponseResult();
         }
+
+        /// <summary>
+        /// It checks folders from all the type directories(file, image, video)
+        /// NOTE : Here web links is generated only for shared folders and we given viewers permissions manually to avoid api abusing
+        /// </summary>
+        /// <param name="queryModel"></param>
+        /// <returns></returns>
+        public async Task<Dictionary<string, List<string>>> GetViewLinkByFolderName(FileQueryModel queryModel)
+        {
+            var folder = await _driveService.GetFolderIdByName(queryModel.FolderName);
+            return await _driveService.GetFilesViewLinks(folder);
+        }
+
+        private async Task<KeyValuePair<string, string>> GetFolderId(FileQueryModel queryModel, string parentFolder)
+        {
+            var existingFolders = await _driveService.GetAllFolders();
+            var folders = queryModel.FolderName.Split(',').ToArray();
+            var folder = new KeyValuePair<string, string>();
+            var tempFolder = existingFolders.FirstOrDefault(a => a.Value.Equals(folders[0], StringComparison.OrdinalIgnoreCase));
+
+            for (int index = 0; index < folders.Length; index++)
+            {
+                if (index == 0 && string.IsNullOrWhiteSpace(tempFolder.Value))
+                    folder = await _driveService.CreateFolder(new FolderModel { FolderName = queryModel.FolderName, ParentFolderId = parentFolder });
+                else if (index == 0)
+                    folder = new KeyValuePair<string, string>(tempFolder.Key, tempFolder.Value);
+                else if (index > 0)
+                {
+                    tempFolder = existingFolders.FirstOrDefault(a => a.Value.Equals(folders[index], StringComparison.OrdinalIgnoreCase));
+                    if (string.IsNullOrWhiteSpace(tempFolder.Value))
+                        folder = await _driveService.CreateFolder(new FolderModel { FolderName = folders[index], ParentFolderId = folder.Key });
+                    else
+                        folder = new KeyValuePair<string, string>(tempFolder.Key, tempFolder.Value);
+                }
+            }
+
+            return folder;
+        }
+
+        //public async Task<Dictionary<string, FileResult>> GetFilesByFolderName(FileQueryModel queryModel)
+        //{
+        //    string folderId;
+        //    switch (queryModel.FileType)
+        //    {
+        //        case FileType.Image:
+        //            folder = await _driveService.CreateFolder(new FolderModel { FolderName = queryModel.FolderName, ParentFolderId = GoogleDriveFolderId.DefaultVideoParentFolder });
+        //            validFormats = MediaConstants.SupportedFormats[MediaConstants.ImageFormats];
+        //            break;
+        //        case FileType.Video:
+        //            folder = await _driveService.CreateFolder(new FolderModel { FolderName = queryModel.FolderName, ParentFolderId = GoogleDriveFolderId.DefaultVideoParentFolder });
+        //            validFormats = MediaConstants.SupportedFormats[MediaConstants.VideoFormats];
+        //            break;
+        //        case FileType.File:
+        //            folder = await _driveService.CreateFolder(new FolderModel { FolderName = queryModel.FolderName, ParentFolderId = GoogleDriveFolderId.DefaultFileParentFolder });
+        //            validFormats = MimeTypeMap.GetAllExtension();
+        //            break;
+        //        default:
+        //            return new BadRequestResult();
+        //    }
+
+        //    return await _driveService.GetFilesStream(folderId: folderId);
+        //}
     }
 }

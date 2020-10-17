@@ -1,8 +1,10 @@
 ﻿using BaseLibrary.Constants;
+using BaseLibrary.Helpers;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+using Microsoft.AspNetCore.Mvc;
 using ShortVideo.API.Models;
 using System;
 using System.Collections.Generic;
@@ -30,7 +32,10 @@ namespace ShortVideo.API.Services
     public interface IGoogleDriveService
     {
         Task<Dictionary<string, string>> GetFiles(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder);
+        Task<Dictionary<string, FileResult>> GetFilesStream(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder);
+        Task<Dictionary<string, List<string>>> GetFilesViewLinks(KeyValuePair<string, string> folderIdName);
         Task<Dictionary<string, string>> GetFolders(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder);
+        Task<Dictionary<string, string>> GetAllFolders(int pageSize = 1000);
         Task<Dictionary<string, string>> GetFilesOrFolders(string query, int pageSize = 1000);
         /// <summary>
         /// It checks all the folders inside root folder including sub folders
@@ -82,25 +87,74 @@ namespace ShortVideo.API.Services
         {
             return await GetFilesOrFolders($"'{folderId}' in parents and mimeType != 'application/vnd.google-apps.folder'", pageSize);
         }
+        public async Task<Dictionary<string, FileResult>> GetFilesStream(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder)
+        {
+            var filesStreams = new Dictionary<string, FileResult>();
+            var files = await GetFilesOrFolders($"'{folderId}' in parents and mimeType != 'application/vnd.google-apps.folder'", pageSize);
+            foreach (var file in files)
+            {
+                var memory = new MemoryStream();
+                var mimeType = MimeTypeMap.GetMimeType(Utils.GetFileExtension(file.Value));
+                _driveService.Files.Export(file.Key, mimeType).Download(memory);
+                var fileResult = new FileContentResult(memory.ToArray(), mimeType) { FileDownloadName = file.Value };
+                filesStreams.Add(file.Value, fileResult);
+            }
+            return filesStreams;
+        }
+        public async Task<Dictionary<string, List<string>>> GetFilesViewLinks(KeyValuePair<string, string> folderIdName)
+        {
+            var filesStreams = new Dictionary<string, List<string>>();
+            var currentDirectory = "";
+            await IterateLinks(filesStreams, currentDirectory, folderIdName);
+            return filesStreams;
+        }
+
+        private async Task IterateLinks(Dictionary<string, List<string>> filesStreams, string currentDirectory, KeyValuePair<string, string> file)
+        {
+            var files = await FilesList($"'{file.Key}' in parents");
+            var currentList = new List<string>();
+            //"application/vnd.google-apps.folder"
+            foreach (var currentFile in files)
+            {
+                if (currentFile.MimeType == "application/vnd.google-apps.folder")
+                    await IterateLinks(filesStreams, $"{currentDirectory}/{currentFile.Name}", new KeyValuePair<string, string>(currentFile.Id, currentFile.Name));
+                else
+                    currentList.Add(currentFile.Id);
+            }
+            filesStreams.Add(currentDirectory, currentList);
+
+        }
+
         public async Task<Dictionary<string, string>> GetFolders(int pageSize = 1000, string folderId = GoogleDriveFolderId.RootParentFolder)
         {
             return await GetFilesOrFolders($"'{folderId}' in parents and mimeType = 'application/vnd.google-apps.folder'", pageSize);
+        } 
+        public async Task<Dictionary<string, string>> GetAllFolders(int pageSize = 1000)
+        {
+            return await GetFilesOrFolders($"mimeType = 'application/vnd.google-apps.folder'", pageSize);
         }
         public async Task<Dictionary<string, string>> GetFilesOrFolders(string query, int pageSize = 1000)
         {
-            // Define parameters of request.
-            var listRequest = _driveService.Files.List();
-            listRequest.PageSize = pageSize;
-            listRequest.Fields = "nextPageToken, files(id, name)";
-            listRequest.Q = query;
-
             // List files.
-            IList<Google.Apis.Drive.v3.Data.File> files = (await listRequest.ExecuteAsync()).Files;
+            IList<Google.Apis.Drive.v3.Data.File> files = await FilesList(query, pageSize);
 
             var list = new Dictionary<string, string>();
             if (files != null && files.Count > 0)
                 list = files.ToDictionary(a => a.Id, b => b.Name);
             return list;
+        }
+      
+
+        private async Task<IList<Google.Apis.Drive.v3.Data.File>> FilesList(string query, int pageSize = 1000)
+        {
+            var listRequest = _driveService.Files.List();
+            listRequest.PageSize = pageSize;
+            listRequest.Fields = "nextPageToken, files(id, name, mimeType)";
+            listRequest.Q = query;
+
+            // List files.
+            IList<Google.Apis.Drive.v3.Data.File> files = (await listRequest.ExecuteAsync()).Files;
+            return files;
         }
 
         public async Task<KeyValuePair<string, string>> GetFolderIdByName(string folderName)
@@ -165,5 +219,6 @@ namespace ShortVideo.API.Services
 
         //https://developers.google.com/drive/api/v3/quickstart/dotnet
         //https://drive.google.com/drive/folders/197VtRLoVQn6_mwVfkyjHkqgBVBAqfaJb?usp=sharing
+        //https://drive.google.com/uc?id=
     }
 }
