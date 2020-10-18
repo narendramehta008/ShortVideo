@@ -3,8 +3,9 @@ import React, { useEffect, useState } from "react";
 import "./auth.scss";
 import { Constants } from "../../../shared/models/Constants";
 import { NeuFormInput } from "../../../components/neu-components/inputs/neu-form-input";
-import { NewFields } from "../../../components/neu-components/inputs/neu-fields";
 import { NeuForm } from "../../../components/neu-components/forms/NeuForm";
+import { useHistory } from "react-router-dom";
+
 
 const apis = Constants;
 
@@ -17,6 +18,7 @@ export const Login = () => {
     const [userName, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const history = useHistory();
 
     const [validationStatus, setValidationStatus] = useState([
         { id: "username", value: true },
@@ -31,6 +33,8 @@ export const Login = () => {
         Axios.post(`${apis.baseUrl}${apis.auth.login}`, postData).then(a => {
             localStorage.setItem('token', a.data.token);
             localStorage.setItem('username', userName);
+
+            history.push("/");
         }).catch(c => {
             setError(c.response.statusText);
         });
@@ -44,8 +48,10 @@ export const Login = () => {
     }
 
     const validate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (!userName && !password)
+        if (!userName && !password) {
+            setError('Username or password is empty');
             return;
+        }
         event.preventDefault();
         debugger;
         validationStatus.map(valid => {

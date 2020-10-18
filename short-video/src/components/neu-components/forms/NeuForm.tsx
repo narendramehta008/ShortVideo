@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { ReactElement, useEffect, useState } from 'react'
 import '../styles/neu.scss'
 
 interface IProps {
@@ -38,6 +38,17 @@ export const NeuForm: React.FC<IProps> = ({ title, subTitle, onClick, logoSrc, c
     }, [error])
 
     const validation = () => {
+        //checking childs have validation or not
+        if (children) {
+            var tempChild = children as any;
+            tempChild.props.children.map((child: ReactElement) => {
+                if ((child.props.requiredError || child.props.pattern) && !child.props.inputValue) {
+                    setError('Required fields are empty.')
+                    return false;
+                }
+            });
+        }
+
         return true;
     }
 
