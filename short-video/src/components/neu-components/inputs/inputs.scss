@@ -1,0 +1,19 @@
+.neu-fields input {
+    border: none;
+    outline:none;
+    background: none;
+    font-size: 18px;
+    color: #555;
+    padding:20px 10px 20px 5px;
+  }
+
+  .neu-field {
+    margin-top: 10px;
+    border-radius: 25px;
+    box-shadow: inset 8px 8px 8px #cbced1,
+                inset -8px -8px 8px #ffffff;
+  }
+.neu-field-error{
+    color: red;
+    font-size: medium;
+}
