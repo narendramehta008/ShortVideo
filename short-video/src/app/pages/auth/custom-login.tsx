@@ -33,8 +33,8 @@ export const CustomLogin = () => {
         Axios.post(`${apis.baseUrl}${apis.auth.login}`, postData).then(a => {
             localStorage.setItem('token', a.data.token);
             localStorage.setItem('username', userName);
-
-            history.push("/");
+            window.location.reload();
+            //history.push("/");
         }).catch(c => {
             setError(c.response.statusText);
         });
@@ -53,7 +53,6 @@ export const CustomLogin = () => {
             return;
         }
         event.preventDefault();
-        debugger;
         validationStatus.map(valid => {
             if (!valid.value)
                 return false;

@@ -7,9 +7,8 @@ import Home from "./app/pages/home";
 //import "./styles/main.scss";
 import { DownloadMain } from "./features/download-images/downloadmain";
 import "semantic-ui-css/semantic.min.css";
-import { Login } from "./app/pages/auth/login";
+//import { Login } from "./app/pages/auth/login";
 import 'ui-neumorphism/dist/index.css'
-import { NavLink } from "react-bootstrap";
 import { CustomLogin } from "./app/pages/auth/custom-login";
 //import { overrideThemeVariables } from 'ui-neumorphism'
 

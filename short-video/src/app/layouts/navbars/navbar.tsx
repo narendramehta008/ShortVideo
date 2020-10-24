@@ -1,7 +1,7 @@
 import React, { Component, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
-import { Button, Card, IconButton } from "ui-neumorphism";
+import { Button, Card, IconButton, } from "ui-neumorphism";
 import { mdiInformation, mdiHome, mdiAccount } from '@mdi/js';
 import Icon from "@mdi/react";
 import './navbar.scss'
@@ -18,9 +18,29 @@ export const NavBar: React.FC<IProps> = ({ dark }) => {
     user && setUser(user);
   }, [])
 
+  const logout = () => {
+    localStorage.removeItem('username');
+    localStorage.removeItem('token');
+    window.location.reload();
+  }
+
+  // const CustomToggle = React.forwardRef(({ children, onClick: any }, ref: any) => (
+  //   <a
+  //     href=""
+  //     ref={ref}
+  //     onClick={e => {
+  //       e.preventDefault();
+  //       onClick(e);
+  //     }}
+  //   >
+  //     {/* Render custom icon here */}
+  //     &#x25bc;
+  //     {children}
+  //   </a>
+  // ));
 
   return (
-    <Navbar collapseOnSelect expand="lg" style={{ background: '#b9cae2' }} variant="dark">
+    <Navbar collapseOnSelect expand="lg" style={{ background: '#ecf0f3' }} variant="dark">
       {/* <Navbar.Brand href="/" className="fab fa-twitter"></Navbar.Brand> */}
       <Navbar.Toggle aria-controls="responsive-navbar-nav" />
       <Navbar.Collapse id="responsive-navbar-nav">
@@ -44,20 +64,36 @@ export const NavBar: React.FC<IProps> = ({ dark }) => {
 
           </Link>
 
-          <NavDropdown title="Download Pages" id="basic-nav-dropdown">
-            <NavDropdown.Item as={Link} to="/download-image">
-              Download Image
-            </NavDropdown.Item>
-          </NavDropdown>
 
-          {user ? <NavDropdown title="" id="basic-nav-dropdown" className="user-avatar">
-            <NavDropdown.Item as={Link} to="/download-image"  >
-              <Card style={{ margin: '-10px -20px', display: 'list-item', alignItems: 'center' }}>
-                <Icon path={mdiAccount} size={2} color="var(--primary)" /> <br></br>
-                <Label>{user}</Label>
-              </Card>
-            </NavDropdown.Item>
-          </NavDropdown> : null}
+          {user ?
+            <div style={{ display: 'flex' }} className="nav-item dropdown">
+              {/* <NavDropdown title="" className="fas fa-cloud" style={{ width: '50px', height: '50px' }} id="basic-nav-dropdown" > */}
+              <NavDropdown title="" id="basic-nav-dropdown" className="user-avatar">
+                <NavDropdown.Item as={Link} to="/download-image" style={{ background: '#ECF0F3' }}>
+                  <Button style={{ width: '140%', padding: '0', marginLeft: '-18px', border: 'none' }}  >account</Button>
+                </NavDropdown.Item>
+              </NavDropdown>
+
+
+              <NavDropdown title="" id="basic-nav-dropdown" className="user-avatar">
+                <NavDropdown.Item as={Link} to="/download-image" style={{ background: '#ECF0F3' }}>
+                  <Card style={{ width: '140%', padding: '0', marginLeft: '-20px' }}  >
+                    <Icon path={mdiAccount} size={2} color="var(--primary)" /> <br />
+                    <Label>{user}</Label>
+                  </Card>
+                </NavDropdown.Item>
+
+                <NavDropdown.Item as={Link} to="/download-image" style={{ background: '#ECF0F3' }}>
+                  <Button style={{ width: '140%', padding: '0', marginLeft: '-18px', border: 'none' }}  >account</Button>
+                </NavDropdown.Item>
+
+                <NavDropdown.Item as={Link} to="/" style={{ background: '#ECF0F3' }}>
+                  <Button style={{ width: '140%', padding: '0', marginLeft: '-20px', border: 'none' }} onClick={(ev) => { logout() }} >Log Out</Button>
+                </NavDropdown.Item>
+
+              </NavDropdown>
+            </div>
+            : null}
 
         </Nav>
       </Navbar.Collapse>
