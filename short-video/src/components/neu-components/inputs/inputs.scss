@@ -13,6 +13,17 @@
     box-shadow: inset 8px 8px 8px #cbced1,
                 inset -8px -8px 8px #ffffff;
   }
+  .neu-form-input{
+    display: inline-flex;
+  }
+  .neu-label {
+    font-size: 20px;
+    display: flex;
+    padding-right:5px ;
+    align-items: center;
+    font-weight: bold;
+    word-wrap: break-word;
+  }
 .neu-field-error{
     color: red;
     font-size: medium;

@@ -1,0 +1,21 @@
+
+.user-avatar{
+width: 50px;
+    background: url('/favicon.ico') ;
+    background-size: 50px;
+    background-repeat: no-repeat;
+    // background-size: contain;
+    background-color: #fff;
+    // overflow: hidden;
+
+     -moz-appearance: none;
+     -webkit-appearance: none;
+     appearance: none;
+    // display: none;
+}
+
+.user_avatar-container{
+    margin: '-10px';
+     height: '100px';
+     align-items: 'baseline';
+}

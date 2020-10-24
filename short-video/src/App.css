@@ -36,3 +36,40 @@
     transform: rotate(360deg);
   }
 }
+
+/* Fitness app */
+
+.fitness-app-container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.fitness-app-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.fitness-app {
+  padding: 24px;
+  position: relative;
+  margin: 16px 32px;
+}
+
+.fitness-app--small {
+  margin: 16px 0px;
+}
+
+.fitness-app-nav-bar {
+  width: 300px;
+  display: flex;
+  left: 0px;
+  bottom: -8px;
+  margin: 8px 0px;
+  padding: 16px 24px;
+  position: absolute;
+  box-shadow: var(--box-shadow);
+  background: var(--bg-color);
+  justify-content: space-between;
+}

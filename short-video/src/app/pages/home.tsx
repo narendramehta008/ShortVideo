@@ -12,16 +12,15 @@ export default class Home extends Component {
   token = localStorage.getItem('token')
   description = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae, sint culpa reiciendis ut amet doloremque ad numquam, optio commodi aspernatur asperiores porro autem rerum debitis impedit deserunt nesciunt inventore ea.";
 
+  //"neumorphic-ui": "^1.1.0",
   render() {
 
+    //glostick__user__avatar--container
+    //glostick__menu--account
     return (
-      <NeuGrid>
-        <NeuRow columnsCount={2} >
-          <NeuColumn >
-            <NeuCard title='Data' cardImageUrl='https://dll.mmcee.cn/78717395_p0.png' description={this.description}></NeuCard>
-          </NeuColumn>
-        </NeuRow>
-      </NeuGrid>
+      <div>
+
+      </div>
     );
   }
 }

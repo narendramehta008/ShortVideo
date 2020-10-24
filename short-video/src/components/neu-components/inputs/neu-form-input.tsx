@@ -12,16 +12,19 @@ interface IProps {
     isValid?: boolean | true;
     placeHolder?: string;
     validationFunction: (key: string, value: boolean) => void;
+    fieldName?: string;
+    label?: string;
 }
 interface IRef {
     error: string;
 }
 
-export const NeuFormInput: React.FC<IProps> = ({ inputkey, type, inputValue, onChange, requiredError, pattern, patternError, placeHolder, validationFunction }) => {
+export const NeuFormInput: React.FC<IProps> = ({ inputkey, type, fieldName, label, inputValue, onChange, requiredError,
+    pattern, patternError, placeHolder, validationFunction }) => {
 
     const [error, setError] = useState("");
     const textInput = createRef<HTMLDivElement>();
-    const checking = (event: ChangeEvent<HTMLInputElement>) => {
+    const validating = (event: ChangeEvent<HTMLInputElement>) => {
         if (pattern) {
             var regexConst = new RegExp(pattern);
             if (!regexConst.test(event.target.value)) {
@@ -44,12 +47,15 @@ export const NeuFormInput: React.FC<IProps> = ({ inputkey, type, inputValue, onC
 
     return (
         <div >
-            <div className="neu-field" >
-                <input
+
+            <div className={label && fieldName ? "neu-form-input" : "neu-field"}>
+                {label && fieldName ? <label className="neu-label" htmlFor={fieldName}>{label}</label> : null}
+                <input className={label && fieldName ? "neu-field" : ""}
+                    name={fieldName}
                     type={type}
                     value={inputValue}
                     onChange={(event) => {
-                        checking(event);
+                        validating(event);
                         onChange(event)
                     }}
                     placeholder={placeHolder}
