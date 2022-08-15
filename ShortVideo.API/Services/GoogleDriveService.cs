@@ -18,15 +18,16 @@ namespace ShortVideo.API.Services
 {
     public class GoogleDriveFolderId
     {
-        public const string RootParentFolder = "11PfREpvFuSUeMbclw4_pems2X4vngXVA";
+        public const string RootParentFolder = "1GOOQK9OQj157uX1HKEKVwzHOjMZdHv1x";
+
+        public const string DefaultImageParentFolder = "1uSWptecqWLTfuUzk4bTL3Eryds_cLP1g";
         public const string DefaultImageFolder = "1I60sZ7lBr1KZayLVr9fModEGQ-7KhAwy";
-        public const string DefaultImageParentFolder = "1nKnuL3qHT1CKw_v6wtX8Ca08HAh_6bQF";
 
-        public const string DefaultVideoFolder = "1MHlsm_4rZb3vc1oBaOMZuZyJdMGLZOMP";
-        public const string DefaultVideoParentFolder = "1nNG8Ow-cBBd-3xr3oYugkUiSlh6l21iM";
+        public const string DefaultVideoParentFolder = "14JW4DjfWIokEniJxA7R3QOwvxHgXlhRM";
+        public const string DefaultVideoFolder = "12L0ZN7mEmWe1NFFKUXKVq3B7yJCKBWGs";
 
-        public const string DefaultFileFolder = "1Vn1Qa7L4j3y8SyErG045-ZcugRQWkLKG";
-        public const string DefaultFileParentFolder = "16W8ahy1mBUkqhskBQCL6NqwXEBVbYpbJ";
+        public const string DefaultFileParentFolder = "16Ez3xTDnFPMX59wtF45weieD79O44F4U";
+        public const string DefaultFileFolder = "1YKNClHZTLbjbK3QHmNyg5_sEJjH0g_uo";
     }
 
     public interface IGoogleDriveService
